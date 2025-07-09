@@ -1,29 +1,31 @@
 require('dotenv').config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const connectDB = require('./connect/connect');
+const app = express();
+app.get('/', (req, res) => {
+    res.send("Welcome to our hotel!");
+});
+//Import router files
+const personRoutes= require('./routes/personRoutes');
+const menuItemRoutes= require('./routes/menuItemRoutes');
+//Use the router
+app.use(bodyParser.json());
+app.use('/person',personRoutes);
+app.use('/menu',menuItemRoutes);
 
-const express=require("express");
-const app= express();
-const connectDB = require('./connect/connect')
-app.get('/',function(req,res){
-    res.send("Welcome to our hotel! What can i help you?")
-})
-app.get('/chicken',function(req,res){
-    res.send("We would love to serve you chicken.")
-})
-app.get('/idli',(req,res)=>{
-    var customized_idli={
-        name:'rava-idli',
-        size:'10 cm diameter available',
-        is_sambhar: true,
-        is_chutney: false
+const PORT = process.env.PORT || 3000;
+
+// ✅ Start server
+const start = async () => {
+    try {
+        await connectDB(process.env.MONGO_URI);
+        app.listen(PORT, () => {
+            console.log(`🚀 Server is running at http://localhost:${PORT}/`);
+        });
+    } catch (err) {
+        console.error("❌ Failed to connect to DB:", err);
     }
-    res.send(customized_idli)
-})
-const PORT = process.env.PORT;
-const start=async()=>{
-    await connectDB(process.env.MONGO_URI)
-    app.listen(3000,()=>{
-    console.log(`Listening on port http://localhost:${PORT}/`)
-})
-}
+};
 
 start();
